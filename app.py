@@ -1,4 +1,3 @@
-# support_bot/app.py
 import os
 import logging
 import asyncio
@@ -7,8 +6,6 @@ from aiogram.filters import Command
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-
-# Добавляем для веб-сервера
 from aiohttp import web
 
 logging.basicConfig(level=logging.INFO)
@@ -36,7 +33,7 @@ async def support_start(message: Message):
         "Свяжемся с вами как можно быстрее!\n\n"
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_support")]
+        [InlineKeyboardButton(text="Отмена", callback_data="cancel_support")]
     ])
     await message.answer(text, reply_markup=keyboard, parse_mode="HTML")
 
@@ -47,11 +44,11 @@ async def handle_user_message(message: Message):
     full_name = message.from_user.full_name or ""
 
     forward_text = (
-        f"📩 <b>Новое сообщение от пользователя</b>\n"
+        f"<b>Новое сообщение от пользователя</b>\n"
         f"👤 <b>ID:</b> <code>{user_id}</code>\n"
         f"👤 <b>Имя:</b> {full_name}\n"
         f"👤 <b>Username:</b> @{username}\n\n"
-        f"📝 <b>Текст сообщения:</b>\n{message.text}"
+        f"<b>Текст сообщения:</b>\n{message.text}"
     )
 
     await bot.send_message(ADMIN_ID, forward_text, parse_mode="HTML")
@@ -85,11 +82,9 @@ async def start_web_server():
     site = web.TCPSite(runner, host='0.0.0.0', port=port)
     await site.start()
     logging.info(f"Health check server started on port {port}")
-    # Бесконечно держим сервер
     await asyncio.Event().wait()
 
 async def main():
-    # Запускаем оба сервиса параллельно: polling и веб-сервер
     await asyncio.gather(
         dp.start_polling(bot),
         start_web_server()
